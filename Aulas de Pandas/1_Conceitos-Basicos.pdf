@@ -1,0 +1,37 @@
+Tipos dados 
+
+Dados estruturado/Structured:
+
+São dados que podem ser organizados em tabelas linhas ou colunas.
+
+Dados estruturados são responsaveis por 20% dos dados armazenados por uma empresa. 
+
+São mais faceis de se trabalhar e cosomem menos espaço.
+--------------------------------------------------------------------------------------------
+
+Dados Não estruturados/ Unstructures Data:
+
+São dados que não podem ser amzenados ou organizados em uma 
+tabela ex: 
+Videos, imagens, músicas, documentos em geral (world, PDF)
+
+Dados não estruturados são responsaveis por 80% dos armazenados por uma empresas.
+
+São mais dificeis de se protejer de ataques.
+--------------------------------------------------------------------------------------------
+
+
+Elementos Chaves / Jargoes da area 
+
+Data frame: Jargão para Tabela/Table
+
+sample: Jargão para Amostra/Sample 
+
+Feature: Jargão para Coluna/Column  
+
+Index: Jargão para Linha/Row (Pode ser numerico ou alfanumerico)
+
+Series: Jargão para Coluna/Column (Quando tem apenas uma coluna ou uma linha)
+
+
+

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coletor de Estrelas - Python Funcional</title>
+
+    <!-- Brython -->
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.12.2/brython.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.12.2/brython_stdlib.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0f2a, #0a1a3a);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: #0a0c1a;
+            padding: 20px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 16px;
+            box-shadow: 0 0 0 3px #ffd966, 0 0 0 6px #b8860b;
+            background-color: #0a1128;
+        }
+        
+        .info {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-top: 16px;
+            color: #ffecb3;
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 0 #5a3e1a;
+        }
+        
+        .score {
+            background: #1e1f2c;
+            padding: 6px 16px;
+            border-radius: 40px;
+        }
+        
+        button {
+            background: #f0b27a;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 6px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: monospace;
+        }
+        
+        button:hover {
+            background: #ffd966;
+            transform: scale(1.02);
+        }
+        
+        .controls {
+            font-size: 0.8rem;
+            margin-top: 10px;
+            text-align: center;
+            color: #aaa;
+        }
+    </style>
+</head>
+
+<!-- CORREÇÃO PRINCIPAL AQUI -->
+<body onload="brython()">
+
+    <div>
+        <div class="game-container">
+            <canvas id="gameCanvas" width="800" height="500"></canvas>
+            <div class="info">
+                <span>⭐ COLETOR DE ESTRELAS - PYTHON 🐍</span>
+                <div class="score">🏆 <span id="scoreValue">0</span></div>
+                <button id="resetBtn">🔄 Reiniciar</button>
+            </div>
+            <div class="controls">⬆️ ⬇️ ⬅️ ➡️ — Mova o herói — Pegue as estrelas douradas!</div>
+        </div>
+    </div>
+
+    <script type="text/python">
+from browser import document, window, timer
+import random
+import math
+
+WIDTH = 800
+HEIGHT = 500
+
+canvas = document["gameCanvas"]
+ctx = canvas.getContext("2d")
+score_display = document["scoreValue"]
+
+player = {"x": WIDTH // 2, "y": HEIGHT // 2, "radius": 18}
+
+stars = []
+score = 0
+
+game_over = False
+
+keys = {"ArrowUp": False, "ArrowDown": False, "ArrowLeft": False, "ArrowRight": False}
+
+PLAYER_SPEED = 5
+STAR_RADIUS = 10
+NUM_STARS = 8
+
+background_stars = [
+    ((i * 131) % WIDTH, (i * 253) % HEIGHT)
+    for i in range(100)
+]
+
+
+def create_star():
+    return {
+        "x": random.randint(STAR_RADIUS, WIDTH - STAR_RADIUS),
+        "y": random.randint(STAR_RADIUS, HEIGHT - STAR_RADIUS),
+        "radius": STAR_RADIUS
+    }
+
+
+def init_game():
+    global score, stars, game_over
+
+    score = 0
+    score_display.text = str(score)
+    game_over = False
+
+    player["x"] = WIDTH // 2
+    player["y"] = HEIGHT // 2
+
+    stars.clear()
+    for _ in range(NUM_STARS):
+        stars.append(create_star())
+
+
+def move_player():
+    if game_over:
+        return
+
+    dx, dy = 0, 0
+
+    if keys["ArrowUp"]:
+        dy -= 1
+    if keys["ArrowDown"]:
+        dy += 1
+    if keys["ArrowLeft"]:
+        dx -= 1
+    if keys["ArrowRight"]:
+        dx += 1
+
+    if dx or dy:
+        length = math.sqrt(dx*dx + dy*dy)
+        dx /= length
+        dy /= length
+
+    new_x = player["x"] + dx * PLAYER_SPEED
+    new_y = player["y"] + dy * PLAYER_SPEED
+
+    if 0 < new_x - player["radius"] < WIDTH:
+        player["x"] = new_x
+    if 0 < new_y - player["radius"] < HEIGHT:
+        player["y"] = new_y
+
+
+def check_collisions():
+    global score, game_over
+
+    for star in stars[:]:
+        dx = player["x"] - star["x"]
+        dy = player["y"] - star["y"]
+        distance = math.sqrt(dx*dx + dy*dy)
+
+        if distance < player["radius"] + star["radius"]:
+            stars.remove(star)
+            score += 10
+            score_display.text = str(score)
+
+            if score >= 200:
+                game_over = True
+
+    while len(stars) < NUM_STARS:
+        stars.append(create_star())
+
+
+def draw():
+    ctx.fillStyle = "#0a1128"
+    ctx.fillRect(0, 0, WIDTH, HEIGHT)
+
+    ctx.fillStyle = "#ffffff"
+    for x, y in background_stars:
+        ctx.beginPath()
+        ctx.arc(x, y, 1, 0, 2 * math.pi)
+        ctx.fill()
+
+    for star in stars:
+        ctx.beginPath()
+        ctx.arc(star["x"], star["y"], star["radius"] + 2, 0, 2 * math.pi)
+        ctx.fillStyle = "#fff3b0"
+        ctx.fill()
+
+        ctx.beginPath()
+        ctx.arc(star["x"], star["y"], star["radius"], 0, 2 * math.pi)
+        ctx.fillStyle = "#ffcc33"
+        ctx.fill()
+
+    ctx.beginPath()
+    ctx.arc(player["x"], player["y"], player["radius"], 0, 2 * math.pi)
+    ctx.fillStyle = "#3a86ff"
+    ctx.fill()
+
+    if game_over:
+        ctx.font = "30px monospace"
+        ctx.fillStyle = "#ff0000"
+        ctx.fillText("GAME OVER", WIDTH//2 - 100, HEIGHT//2)
+
+
+def update():
+    if not game_over:
+        move_player()
+        check_collisions()
+    draw()
+
+
+def game_loop():
+    update()
+    timer.set_timeout(game_loop, 16)
+
+
+def on_key_down(event):
+    if event.key in keys:
+        keys[event.key] = True
+
+
+def on_key_up(event):
+    if event.key in keys:
+        keys[event.key] = False
+
+
+def setup():
+    document.bind("keydown", on_key_down)
+    document.bind("keyup", on_key_up)
+    document["resetBtn"].bind("click", lambda e: init_game())
+
+    init_game()
+    game_loop()
+
+setup()
+</script>
+
+</body>
+</html>

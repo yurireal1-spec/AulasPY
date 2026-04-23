@@ -1,0 +1,39 @@
+Objetivo do jogo pegar estrelas para aumentar a pontuação, evitando que o jogo acabe ao atingir 200 pontos.
+
+Variáveis (22)
+├── Constantes: WIDTH, HEIGHT, PLAYER_SPEED, STAR_RADIUS, NUM_STARS
+├── Estado: score, game_over, canvas, ctx, score_display  
+├── Dicionários: player (3 chaves), keys (4 chaves)
+├── Listas: stars, background_stars (list comprehension)
+└── Locais: dx, dy, length, new_x, new_y, distance, star, x, y
+
+Decisões (9)
+├── if game_over: return
+├── if keys["ArrowUp"]: dy -= 1 (4x)
+├── if dx or dy:
+├── if 0 < new_x - radius < WIDTH (2x)
+├── if distance < player["radius"] + star["radius"]:
+├── if score >= 200: game_over = True
+├── if not game_over:
+└── if event.key in keys (2x)
+
+Repetições (6)
+├── for _ in range(NUM_STARS):
+├── for star in stars[:]:
+├── while len(stars) < NUM_STARS:
+├── for x, y in background_stars:
+├── for star in stars:
+└── timer.set_timeout(game_loop, 16) # recursão
+
+oque me chamou a atenção foi:
+
+background_stars = [
+    ((i * 131) % WIDTH, (i * 253) % HEIGHT)
+    for i in range(100)
+]
+- Gera 100 coordenadas em uma única linha
+- Mais eficiente que loop for tradicional
+- Economizando linhas de código e melhorando a legibilidade
+
+Alem de ter que usar  (python -m http.server) para executar diferente js que roda ativamente no navegador. 
+
